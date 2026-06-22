@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>Trọng tài</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-        :root{
+    :root{
       --bg:#0d1117;
       --panel:#161b22;
       --red:#e63946;
@@ -35,70 +35,62 @@
     .status{margin-top:20px;font-size:14px;color:#8b949e;text-align:center}
     .match-id { font-size:14px; color:#8b949e; text-align: center; margin-bottom: 10px; }
 
-    /* --- GIỮ NGUYÊN CÁC CSS CŨ CỦA BẠN VÀ THÊM ĐOẠN DƯỚI ĐÂY VÀO CUỐI --- */
-
-/* Tối ưu hóa khi màn hình xoay ngang (Landscape) trên thiết bị di động */
-@media screen and (orientation: landscape) and (max-height: 600px) {
-  body {
-    padding: 5px; /* Giảm padding viền ngoài để tăng diện tích hiển thị */
-  }
-
-  .judge-card {
-    max-width: 100%; /* Tràn màn hình ngang */
-    padding: 10px 15px;
-    border-radius: 6px;
-  }
-
-  .header-area {
-    margin-bottom: 8px;
-    padding-bottom: 5px;
-  }
-
-  h2 {
-    font-size: 18px; /* Thu nhỏ tiêu đề */
-  }
-
-  .match-id {
-    margin-bottom: 8px;
-    font-size: 13px;
-  }
-
-  /* Chia Đỏ và Xanh thành 2 cột song song chiếm trọn màn hình */
-  .teams {
-    display: flex;
-    flex-direction: row; /* Ép nằm ngang song song */
-    gap: 10px;
-    margin-top: 5px;
-  }
-
-  .team-box {
-    flex: 1;
-    min-width: 0; /* Bỏ min-width cũ để không bị vỡ bố cục */
-    padding: 8px;
-  }
-
-  .team-title {
-    margin-bottom: 8px;
-    font-size: 16px;
-  }
-
-  /* Đẩy các nút điểm lên hàng ngang hoặc lưới thu nhỏ để trọng tài dễ bấm bằng 2 ngón cái */
-  .buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Xếp 4 nút thành 1 hàng ngang duy nhất */
-    gap: 6px;
-  }
-
-  .btn {
-    padding: 12px 5px; /* Thu hẹp chiều cao nút để vừa màn hình ngang */
-    font-size: 16px;
-  }
-
-  .status {
-    margin-top: 10px;
-    font-size: 12px;
-  }
-}
+    /* --- ĐOẠN ĐÃ SỬA: Tối ưu hóa xoay ngang triệt để cho mọi loại điện thoại --- */
+    @media screen and (orientation: landscape) {
+      body {
+        padding: 5px; 
+      }
+      .judge-card {
+        max-width: 100% !important; /* Ép tràn hết chiều ngang điện thoại */
+        padding: 10px 15px;
+        border-radius: 6px;
+      }
+      .header-area {
+        margin-bottom: 5px;
+        padding-bottom: 5px;
+      }
+      h2 {
+        font-size: 16px;
+      }
+      .btn-logout {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      .match-id {
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+      /* Ép 2 khối ĐỎ - XANH nằm song song 2 bên màn hình */
+      .teams {
+        display: flex !important;
+        flex-direction: row !important; 
+        gap: 10px;
+        margin-top: 5px;
+      }
+      .team-box {
+        flex: 1 !important;
+        min-width: 0 !important; /* Xóa bỏ min-width cũ để không bị đẩy xuống hàng */
+        padding: 8px;
+      }
+      .team-title {
+        margin-bottom: 8px;
+        font-size: 16px;
+      }
+      /* Ép 4 nút của mỗi bên xếp thành 1 hàng ngang duy nhất */
+      .buttons {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px;
+      }
+      .btn {
+        padding: 10px 2px; /* Thu nhỏ chiều cao để vừa khít màn hình, không bị cuộn xuống */
+        font-size: 16px;
+      }
+      .status {
+        margin-top: 5px;
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -140,16 +132,13 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
   import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
-  // 1. Kiểm tra quyền đăng nhập từ localStorage
   const userRole = localStorage.getItem("userRole");
   const username = localStorage.getItem("username");
   
-  // SỬA LỖI: Cho phép admin hoặc tài khoản có role dạng judge truy cập
   if (!userRole || (userRole !== "admin" && !userRole.startsWith("judge"))) {
     window.location.href = "index.html";
   }
 
-  // Hiển thị tiêu đề động dựa trên loại tài khoản
   const judgeTitleEl = document.getElementById("judgeTitle");
   if (userRole === "admin") {
     judgeTitleEl.textContent = "ADMIN (XEM ĐIỂM)";
@@ -173,12 +162,12 @@
   const db = getDatabase(app);
 
   const matchIdEl = document.getElementById("matchId");
-  const statusLine = document.getElementById("statusLine");
+  const statusLine = document.getElementById;
+  const statusLineEl = document.getElementById("statusLine");
 
   let currentMatchId = null;
   let currentState = "idle";
 
-  // 2. Theo dõi Trận đấu hiện tại từ Control
   onValue(ref(db, "/currentMatchId"), snap=>{
     if(snap.exists() && snap.val()){
       currentMatchId = snap.val();
@@ -188,18 +177,16 @@
         if(ss.exists()){
           const s = ss.val();
           currentState = s.status;
-          statusLine.textContent = "Trạng thái trận: " + currentState.toUpperCase();
+          statusLineEl.textContent = "Trạng thái trận: " + currentState.toUpperCase();
         }
       });
     } else {
       matchIdEl.textContent = "Chưa mở trận";
-      statusLine.textContent = "Chờ Admin thiết lập trận đấu...";
+      statusLineEl.textContent = "Chờ Admin thiết lập trận đấu...";
     }
   });
 
-  // 3. Hàm gửi điểm (Vote) lên hệ thống xử lý trùng đòn
   async function sendVote(side, delta){
-    // SỬA LỖI: Cấu trúc lại lệnh chặn lọt dữ liệu khi có lỗi
     if(!currentMatchId){
       Swal.fire({
         icon: 'warning',
@@ -223,32 +210,28 @@
     const vRef = push(ref(db, "/votes/" + currentMatchId));
     await set(vRef,{ judgeId: userRole, side, delta: Number(delta), ts: Date.now() });
     
-    statusLine.textContent = `✅ Đã chấm: ${delta > 0 ? '+' : ''}${delta} cho bên ${side.toUpperCase()}`;
+    statusLineEl.textContent = `✅ Đã chấm: ${delta > 0 ? '+' : ''}${delta} cho bên ${side.toUpperCase()}`;
     disableButtons();
   }
 
-  // Gán sự kiện click cho các nút điểm
   document.querySelectorAll("[data-delta]").forEach(btn=>{
     btn.addEventListener("click", ()=> sendVote(btn.dataset.side, btn.dataset.delta));
   });
 
-  // Khóa nút 800ms chống double-click hoặc bấm nhầm
   function disableButtons(){
     document.querySelectorAll("[data-delta]").forEach(b=> b.disabled = true);
     setTimeout(()=> document.querySelectorAll("[data-delta]").forEach(b=> b.disabled = false), 800);
   }
 
-  // Kiểm tra trạng thái mạng
   onValue(ref(db,".info/connected"), snap=>{
     if(!snap.val()) {
-      statusLine.textContent = "❌ Mất kết nối mạng!";
-      statusLine.style.color = "#f85149";
+      statusLineEl.textContent = "❌ Mất kết nối mạng!";
+      statusLineEl.style.color = "#f85149";
     } else {
-      statusLine.style.color = "#8b949e";
+      statusLineEl.style.color = "#8b949e";
     }
   });
 
-  // Xử lý đăng xuất
   document.getElementById("btnLogout").addEventListener("click", () => {
     localStorage.clear();
     window.location.href = "index.html";
