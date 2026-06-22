@@ -35,60 +35,67 @@
     .status{margin-top:20px;font-size:14px;color:#8b949e;text-align:center}
     .match-id { font-size:14px; color:#8b949e; text-align: center; margin-bottom: 10px; }
 
-    /* --- ĐOẠN ĐÃ SỬA: Tối ưu hóa xoay ngang triệt để cho mọi loại điện thoại --- */
+    /* ==========================================================================
+       ĐOẠN CSS SỬA LỖI XOAY NGANG TỰ ĐỘNG (XÓA BỎ LỖI RỚT NÚT -1)
+       ========================================================================== */
     @media screen and (orientation: landscape) {
       body {
-        padding: 5px; 
+        padding: 5px !important;
       }
       .judge-card {
-        max-width: 100% !important; /* Ép tràn hết chiều ngang điện thoại */
-        padding: 10px 15px;
-        border-radius: 6px;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 10px 15px !important;
+        border-radius: 8px !important;
       }
       .header-area {
-        margin-bottom: 5px;
-        padding-bottom: 5px;
+        margin-bottom: 8px !important;
+        padding-bottom: 5px !important;
       }
       h2 {
-        font-size: 16px;
+        font-size: 18px !important;
       }
       .btn-logout {
-        padding: 4px 8px;
-        font-size: 12px;
+        padding: 4px 10px !important;
+        font-size: 13px !important;
       }
       .match-id {
-        margin-bottom: 5px;
-        font-size: 12px;
+        margin-bottom: 5px !important;
+        font-size: 13px !important;
       }
-      /* Ép 2 khối ĐỎ - XANH nằm song song 2 bên màn hình */
+      /* Ép ĐỎ và XANH xếp song song 2 bên */
       .teams {
         display: flex !important;
-        flex-direction: row !important; 
-        gap: 10px;
-        margin-top: 5px;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important; /* Chống rớt khối */
+        gap: 12px !important;
+        margin-top: 8px !important;
       }
       .team-box {
         flex: 1 !important;
-        min-width: 0 !important; /* Xóa bỏ min-width cũ để không bị đẩy xuống hàng */
-        padding: 8px;
+        min-width: 0 !important; /* Reset thuộc tính cũ để co giãn chuẩn */
+        padding: 10px !important;
       }
       .team-title {
-        margin-bottom: 8px;
-        font-size: 16px;
+        margin-bottom: 8px !important;
+        font-size: 16px !important;
       }
-      /* Ép 4 nút của mỗi bên xếp thành 1 hàng ngang duy nhất */
+      /* Ép chính xác 4 nút thành 1 hàng ngang duy nhất không cho rớt dòng */
       .buttons {
         display: grid !important;
         grid-template-columns: repeat(4, 1fr) !important;
-        gap: 6px;
+        gap: 6px !important;
+        width: 100% !important;
       }
       .btn {
-        padding: 10px 2px; /* Thu nhỏ chiều cao để vừa khít màn hình, không bị cuộn xuống */
-        font-size: 16px;
+        flex: none !important; /* Hủy flex cũ */
+        padding: 14px 2px !important; /* Tối ưu độ cao để dễ chạm */
+        font-size: 16px !important;
+        width: 100% !important;
       }
       .status {
-        margin-top: 5px;
-        font-size: 11px;
+        margin-top: 8px !important;
+        font-size: 12px !important;
       }
     }
   </style>
@@ -162,7 +169,6 @@
   const db = getDatabase(app);
 
   const matchIdEl = document.getElementById("matchId");
-  const statusLine = document.getElementById;
   const statusLineEl = document.getElementById("statusLine");
 
   let currentMatchId = null;
