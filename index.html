@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Match Scoring System — Đăng Nhập Hệ Thống Chấm Thi Đấu</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="./style_index.css" rel="stylesheet" type="text/css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<div class="login-card">
+  <h2>HỆ THỐNG CHẤM THI ĐẤU</h2>
+  <form id="loginForm">
+    <div class="form-group">
+      <label>Tên đăng nhập</label>
+      <input type="text" id="username" required placeholder="Admin hoặc Trọng tài">
+    </div>
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="password" required placeholder="••••••••">
+      <span class="password-toggle" id="togglePassword">👁️</span>
+    </div>
+    <button type="submit" class="btn-login">Đăng Nhập</button>
+    <div id="errorMsg" class="error-msg">Sai tên tài khoản hoặc mật khẩu!</div>
+  </form>
+  
+  <a href="scoreboard.html" class="btn-public">Xem Bảng Điểm Thi Đấu</a>
+</div>
+<script src="./script_index.js"></script>
+</body>
+</html>

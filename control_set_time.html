@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Taekwondo — Control (WT Rules)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <style>
+    :root{
+      --bg:#0d1117;
+      --panel:#161b22;
+      --red:#e63946;
+      --blue:#1d6ff2;
+      --green:#2ecc71;
+      --yellow:#f1c40f;
+      --purple:#8e44ad;
+      --muted:#9ca3af;
+      --white:#f5f7fa;
+      --border:#30363d;
+    }
+    *{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--white)}
+    .container{padding:20px;max-width:1200px;margin:auto}
+    h2{margin:0;font-size:30px;text-align: center;}
+    .panel{
+      background:var(--panel);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .row{display:flex;gap:20px;align-items:stretch}
+    .team-box{
+      flex:1;
+      border-radius:14px;
+      padding:16px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .team-red{background:linear-gradient(160deg,var(--red),#ff7f7f)}
+    .team-blue{background:linear-gradient(160deg,var(--blue),#7fb6ff)}
+    .team-name{font-size:18px;font-weight:600;margin-bottom:8px}
+    .score{font-size:72px;font-weight:900}
+    .rounds-win{font-size:20px;font-weight:bold;background:rgba(0,0,0,0.3);padding:5px 10px;border-radius:8px;margin-top:10px}
+    .center-box{
+      flex:1.2;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+    .timer{font-size:40px;font-weight:900;margin:5px 0}
+    .round-current{font-size:22px;color:var(--yellow);font-weight:bold;margin-bottom:5px}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px}
+    .btn{
+      padding:12px 18px;
+      border-radius:10px;
+      border:0;
+      cursor:pointer;
+      font-weight:700;
+      font-size:16px;
+      color:#fff;
+      box-shadow:0 3px 6px rgba(0,0,0,0.3);
+      transition:transform 0.15s ease;
+    }
+    .btn:hover{transform:scale(1.05)}
+    .btn-start{background:var(--green)}
+    .btn-pause{background:var(--yellow);color:#000}
+    .btn-resume{background:var(--blue)}
+    .btn-end{background:#fb0404}
+    .btn-new{background:var(--purple)}
+    .status-line{font-size:14px;color:var(--muted);margin-top:8px;text-align:center}
+    .history-panel{
+      margin-top:24px;
+      padding:16px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.05);
+    }
+    .history-panel h3{margin:0 0 12px 0;font-size:18px;color:var(--white)}
+    .history{max-height:200px;overflow:auto;list-style:none;padding:0;margin:0}
+    .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:15px;}
+    .config-group { display: flex; gap: 15px; align-items: center; }
+    .config-item { display: flex; flex-direction: column; gap: 4px; }
+    .config-item label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    .input-id, .input-time{
+      padding:6px 10px;
+      border-radius:6px;
+      border:1px solid var(--border);
+      background:#010409;
+      color:#fff;
+      font-size:14px;
+    }
+    .input-id { min-width:130px; }
+    .input-time { width: 80px; text-align: center; }
+    .input-id:focus, .input-time:focus { outline: none; border-color: var(--blue); }
+    .conn-status{font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <h2>MÀN HÌNH ĐIỀU KHIỂN CHÍNH</h2>
+  <div class="container">
+    <div class="panel">
+      <div class="top-bar">
+        <div class="config-group">
+          <div class="config-item">
+            <label>Mã Trận Đấu</label>
+            <input id="matchId" class="input-id" placeholder="Trận đấu - 001">
+          </div>
+          <div class="config-item">
+            <label>Thời gian đấu (giây)</label>
+            <input id="cfgMatchTime" class="input-time" type="number" value="120" min="5">
+          </div>
+          <div class="config-item">
+            <label>Thời gian nghỉ (giây)</label>
+            <input id="cfgRestTime" class="input-time" type="number" value="45" min="5">
+          </div>
+        </div>
+        <div class="conn-status" id="connStatus">Not connected</div>
+      </div>
+
+      <div class="row">
+        <div class="team-box team-red">
+          <div class="team-name">ĐỎ</div>
+          <div id="scoreRed" class="score">0</div>
+          <div class="rounds-win">Số hiệp thắng: <span id="winRed">0</span></div>
+        </div>
+
+        <div class="center-box">
+          <div id="roundDisplay" class="round-current">HIỆP 1</div>
+          <div id="timerDisplay" class="timer">02:00</div>
+          <div class="controls">
+            <button id="btnStart" class="btn btn-start">Bắt đầu</button>
+            <button id="btnPause" class="btn btn-pause">Tạm dừng</button>
+            <button id="btnResume" class="btn btn-resume">Tiếp tục</button>
+            <button id="btnEnd" class="btn btn-end" title="Hết hiệp">Kết Thúc</button>
+            <button id="btnNewMatch" class="btn btn-new">Trận mới</button>
+          </div>
+          <div class="status-line">Trạng thái: <span id="matchState">idle</span></div>
+        </div>
+
+        <div class="team-box team-blue">
+          <div class="team-name">XANH</div>
+          <div id="scoreBlue" class="score">0</div>
+          <div class="rounds-win">Số hiệp thắng: <span id="winBlue">0</span></div>
+        </div>
+      </div>
+
+      <div class="history-panel">
+        <h3>Lịch sử ghi điểm (Hiệp hiện tại)</h3>
+        <div id="historyLog"></div>
+        <ul id="history" class="history"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="control.js"></script>
+</body>
+</html>

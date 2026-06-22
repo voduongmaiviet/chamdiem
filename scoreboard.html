@@ -1,0 +1,252 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Taekwondo — Scoreboard (WT Rules)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg:#0d1117;
+      --panel:#161b22;
+      --red:#e63946;
+      --blue:#1d6ff2;
+      --white:#f5f7fa;
+      --yellow:#f1c40f;
+    }
+    *{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--white)}
+    .container{padding:20px;max-width:1200px;margin:auto}
+    h2{margin:0 0 10px;font-size:30px;text-align:center}
+    .panel{
+      background:var(--panel);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    }
+    .row{display:flex;gap:20px;align-items:stretch}
+    .team-box{
+      flex:1;
+      border-radius:14px;
+      padding:16px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      position: relative;
+    }
+    .team-red{background:linear-gradient(160deg,var(--red),#ff7f7f)}
+    .team-blue{background:linear-gradient(160deg,var(--blue),#7fb6ff)}
+    .team-name{font-size:28px;font-weight:600;margin-bottom:8px}
+    .score{font-size:120px;font-weight:900;line-height:1}
+    .round-wins-badge{
+      font-size:22px;
+      font-weight:bold;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-top: 15px;
+      display: inline-block;
+    }
+    .center-box{
+      flex:1.2;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+    .round-title{font-size:28px;color:var(--yellow);font-weight:bold;margin-bottom:5px;text-transform: uppercase;}
+    .timer{font-size:72px;font-weight:900;margin:10px 0;line-height:1;transition: color 0.3s ease;}
+    .status-line{font-size:20px;margin-top:8px;text-align:center;color:#bbb}
+    
+    /* Nút kích hoạt âm thanh ẩn/hiện để lách luật trình duyệt */
+    .audio-ready-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(13, 17, 23, 0.95);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .btn-audio-activate {
+      padding: 20px 40px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      background: #2ecc71;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="audioOverlay" class="audio-ready-overlay">
+    <h1 style="margin-bottom: 20px; text-align:center;">HỆ THỐNG GIẢI ĐẤU TAEKWONDO</h1>
+    <button id="btnAudioActivate" class="btn-audio-activate">👉 BẤM VÀO ĐÂY ĐỂ KÍCH HOẠT CHUÔNG BÁO 🔔</button>
+    <p style="color: #9ca3af; margin-top: 15px;">(Bắt buộc bấm 1 lần để trình duyệt cấp quyền phát tiếng còi khi hết giờ)</p>
+  </div>
+
+  <h2>BẢNG ĐIỂM ĐIỆN TỬ TAEKWONDO</h2>
+  <div class="container">
+    <div class="panel">
+      <div class="row">
+        <div class="team-box team-red">
+          <div class="team-name">ĐỎ</div>
+          <div id="scoreRed" class="score">0</div>
+          <div><span class="round-wins-badge">HIỆP THẮNG: <span id="winRed">0</span></span></div>
+        </div>
+
+        <div class="center-box">
+          <div id="roundDisplay" class="round-title">HIỆP 1</div>
+          <div id="timerDisplay" class="timer">02:00</div>
+          <div class="status-line">Trạng thái: <span id="matchState">idle</span></div>
+        </div>
+
+        <div class="team-box team-blue">
+          <div class="team-name">XANH</div>
+          <div id="scoreBlue" class="score">0</div>
+          <div><span class="round-wins-badge">HIỆP THẮNG: <span id="winBlue">0</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCYPPPbevzpRvNe8_0fD1rk0nfdwCye37Q",
+  authDomain: "chamdiemv12-97475.firebaseapp.com",
+  databaseURL: "https://chamdiemv12-97475-default-rtdb.firebaseio.com",
+  projectId: "chamdiemv12-97475",
+  storageBucket: "chamdiemv12-97475.appspot.com",
+  messagingSenderId: "1011859780993",
+  appId: "1:1011859780993:web:194f16b4e04f86df4e6480",
+  measurementId: "G-861WZ30JQB"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const scoreRedEl = document.getElementById("scoreRed");
+const scoreBlueEl = document.getElementById("scoreBlue");
+const winRedEl = document.getElementById("winRed");
+const winBlueEl = document.getElementById("winBlue");
+const timerDisplay = document.getElementById("timerDisplay");
+const roundDisplay = document.getElementById("roundDisplay");
+const matchStateEl = document.getElementById("matchState");
+
+let lastRecordedTime = -1;
+let lastRecordedTimeType = "";
+
+// Hàm phát tiếng còi/chuông đanh dứt khoát bằng Web Audio API
+function phatTiengChuong() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = 'sawtooth'; 
+    oscillator.frequency.setValueAtTime(680, audioCtx.currentTime); 
+    
+    gainNode.gain.setValueAtTime(0.9, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 10.0);
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 10.0);//THỜI GIAN CHUÔNG 10 GIÂY
+    console.log("🔔 Đã phát tiếng chuông báo kết thúc!");
+  } catch (error) {
+    console.log("Không thể phát âm thanh:", error);
+  }
+}
+
+// Xử lý nút bấm kích hoạt quyền âm thanh từ người dùng
+document.getElementById("btnAudioActivate").addEventListener("click", () => {
+  // Tạo thử 1 AudioContext rỗng để mở khóa hoàn toàn quyền phát âm thanh trên trình duyệt
+  try {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    context.resume();
+  } catch(e){}
+  
+  // Ẩn màn hình mờ đi để lộ bảng điểm chính
+  document.getElementById("audioOverlay").style.display = "none";
+});
+
+function fmtTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+onValue(ref(db,"/currentMatchId"), snap=>{
+  if(!snap.exists()) return;
+  const matchId = snap.val();
+  if(!matchId) return;
+
+  const stateRef = ref(db,"/state/"+matchId);
+  onValue(stateRef, sSnap=>{
+    if(!sSnap.exists()) return;
+    const s = sSnap.val();
+    
+    scoreRedEl.textContent = s.totalRed ?? 0;
+    scoreBlueEl.textContent = s.totalBlue ?? 0;
+    winRedEl.textContent = s.winRoundRed ?? 0;
+    winBlueEl.textContent = s.winRoundBlue ?? 0;
+    
+    let currentTime = 0;
+    
+    if (s.timeType === "rest") {
+      currentTime = s.pauseTimeLeft ?? 0;
+      timerDisplay.textContent = fmtTime(currentTime);
+      timerDisplay.style.color = "#2ecc71"; 
+      roundDisplay.textContent = "THỜI GIAN NGHỈ";
+    } else if (s.timeType === "timeout") {
+      currentTime = s.pauseTimeLeft ?? 0;
+      timerDisplay.textContent = fmtTime(currentTime);
+      timerDisplay.style.color = "#f1c40f"; 
+      roundDisplay.textContent = "TẠM DỪNG";
+    } else {
+      currentTime = s.timeLeft ?? 0;
+      timerDisplay.textContent = fmtTime(currentTime);
+      timerDisplay.style.color = "#f5f7fa"; 
+      roundDisplay.textContent = "HIỆP " + (s.currentRound ?? 1);
+    }
+
+    // --- LOGIC KIỂM TRA PHÁT CHUÔNG ---
+    // Nếu thời gian chạy về đúng bằng 0 và có sự thay đổi so với giây trước đó
+    if (currentTime === 0 && lastRecordedTime > 0) {
+      // Chỉ reo chuông khi hết giờ thi đấu (match) hoặc hết giờ nghỉ (rest)
+      if (s.timeType === "match" || s.timeType === "rest") {
+        phatTiengChuong();
+      }
+    }
+    
+    lastRecordedTime = currentTime;
+    lastRecordedTimeType = s.timeType;
+
+    if(s.status === "ended"){
+      matchStateEl.textContent = "KẾT THÚC";
+      matchStateEl.style.color = "#2ecc71";
+    } else if (s.status === "paused") {
+      matchStateEl.textContent = "TẠM DỪNG";
+      matchStateEl.style.color = "#f1c40f";
+    } else if (s.status === "running") {
+      matchStateEl.textContent = "ĐANG THI ĐẤU";
+      matchStateEl.style.color = "#2ecc71";
+    } else {
+      matchStateEl.textContent = s.status ?? "idle";
+      matchStateEl.style.color = "#bbb";
+    }
+  });
+});
+</script>
+</body>
+</html>

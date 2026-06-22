@@ -1,0 +1,20 @@
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --blue: #1d6ff2;
+      --white: #f5f7fa;
+      --border: #30363d;
+    }
+    * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--white); display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .login-card { background: var(--panel); border: 1px solid var(--border); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    h2 { text-align: center; margin-bottom: 24px; color: var(--white); font-size: 24px; }
+    .form-group { margin-bottom: 18px; position: relative; }
+    label { display: block; margin-bottom: 6px; color: #8b949e; font-size: 14px; }
+    input { width: 100%; padding: 10px 12px; background: #010409; border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 16px; }
+    input:focus { outline: none; border-color: var(--blue); }
+    .password-toggle { position: absolute; right: 12px; top: 35px; cursor: pointer; color: #8b949e; user-select: none; }
+    .btn-login { width: 100%; padding: 12px; background: var(--blue); border: none; border-radius: 6px; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+    .btn-login:hover { background: #388bfd; }
+    .btn-public { display: block; text-align: center; margin-top: 15px; color: #58a6ff; text-decoration: none; font-size: 14px; }
+    .error-msg { color: #f85149; font-size: 14px; text-align: center; margin-top: 10px; display: none; }
