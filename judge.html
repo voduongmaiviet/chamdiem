@@ -34,6 +34,71 @@
     .btn-negative{background:var(--purple)}
     .status{margin-top:20px;font-size:14px;color:#8b949e;text-align:center}
     .match-id { font-size:14px; color:#8b949e; text-align: center; margin-bottom: 10px; }
+
+    /* --- GIỮ NGUYÊN CÁC CSS CŨ CỦA BẠN VÀ THÊM ĐOẠN DƯỚI ĐÂY VÀO CUỐI --- */
+
+/* Tối ưu hóa khi màn hình xoay ngang (Landscape) trên thiết bị di động */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+  body {
+    padding: 5px; /* Giảm padding viền ngoài để tăng diện tích hiển thị */
+  }
+
+  .judge-card {
+    max-width: 100%; /* Tràn màn hình ngang */
+    padding: 10px 15px;
+    border-radius: 6px;
+  }
+
+  .header-area {
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+  }
+
+  h2 {
+    font-size: 18px; /* Thu nhỏ tiêu đề */
+  }
+
+  .match-id {
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  /* Chia Đỏ và Xanh thành 2 cột song song chiếm trọn màn hình */
+  .teams {
+    display: flex;
+    flex-direction: row; /* Ép nằm ngang song song */
+    gap: 10px;
+    margin-top: 5px;
+  }
+
+  .team-box {
+    flex: 1;
+    min-width: 0; /* Bỏ min-width cũ để không bị vỡ bố cục */
+    padding: 8px;
+  }
+
+  .team-title {
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+
+  /* Đẩy các nút điểm lên hàng ngang hoặc lưới thu nhỏ để trọng tài dễ bấm bằng 2 ngón cái */
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Xếp 4 nút thành 1 hàng ngang duy nhất */
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 12px 5px; /* Thu hẹp chiều cao nút để vừa màn hình ngang */
+    font-size: 16px;
+  }
+
+  .status {
+    margin-top: 10px;
+    font-size: 12px;
+  }
+}
   </style>
 </head>
 <body>
