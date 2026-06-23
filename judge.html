@@ -1,1 +1,247 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Trọng tài</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root{
+      --bg:#0d1117;
+      --panel:#161b22;
+      --red:#e63946;
+      --blue:#1d6ff2;
+      --white:#f5f7fa;
+      --border:#30363d;
+      --purple:#8e44ad;
+    }
+    *{box-sizing:border-box;font-family:"Segoe UI",sans-serif}
+    body{margin:0;padding:15px;background:var(--bg);color:var(--white)}
+    .judge-card{max-width:600px;margin:auto;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,0.5)}
+    .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    h2{margin:0; font-size: 22px; color: #f1c40f;}
+    .btn-logout { padding: 6px 12px; background: #f85149; border: none; border-radius: 6px; color: #fff; font-weight: bold; cursor: pointer; }
+    .teams{display:flex;gap:20px;justify-content:space-between;flex-wrap:wrap;margin-top:15px}
+    .team-box{flex:1;min-width:220px;padding:15px;border-radius:10px;background: rgba(255,255,255,0.02);border: 1px solid var(--border);}
+    .team-title{font-weight:bold;margin-bottom:15px;text-align:center;font-size:20px}
+    .red .team-title{color:var(--red)}
+    .blue .team-title{color:var(--blue)}
+    .buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .btn{flex:1 1 60px;padding:15px;border:none;border-radius:8px;font-size:18px;cursor:pointer;font-weight:bold;color:#fff;box-shadow:0 3px 6px rgba(0,0,0,0.3);transition: transform 0.1s;}
+    .btn:active { transform: scale(0.95); }
+    .btn-red{background:var(--red)}
+    .btn-blue{background:var(--blue)}
+    .btn-negative{background:var(--purple)}
+    .status{margin-top:20px;font-size:14px;color:#8b949e;text-align:center}
+    .match-id { font-size:14px; color:#8b949e; text-align: center; margin-bottom: 10px; }
 
+    /* ==========================================================================
+       ĐOẠN CSS SỬA LỖI XOAY NGANG TỰ ĐỘNG (XÓA BỎ LỖI RỚT NÚT -1)
+       ========================================================================== */
+    @media screen and (orientation: landscape) {
+      body {
+        padding: 5px !important;
+      }
+      .judge-card {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 10px 15px !important;
+        border-radius: 8px !important;
+      }
+      .header-area {
+        margin-bottom: 8px !important;
+        padding-bottom: 5px !important;
+      }
+      h2 {
+        font-size: 18px !important;
+      }
+      .btn-logout {
+        padding: 4px 10px !important;
+        font-size: 13px !important;
+      }
+      .match-id {
+        margin-bottom: 5px !important;
+        font-size: 13px !important;
+      }
+      /* Ép ĐỎ và XANH xếp song song 2 bên */
+      .teams {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important; /* Chống rớt khối */
+        gap: 12px !important;
+        margin-top: 8px !important;
+      }
+      .team-box {
+        flex: 1 !important;
+        min-width: 0 !important; /* Reset thuộc tính cũ để co giãn chuẩn */
+        padding: 10px !important;
+      }
+      .team-title {
+        margin-bottom: 8px !important;
+        font-size: 16px !important;
+      }
+      /* Ép chính xác 4 nút thành 1 hàng ngang duy nhất không cho rớt dòng */
+      .buttons {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px !important;
+        width: 100% !important;
+      }
+      .btn {
+        flex: none !important; /* Hủy flex cũ */
+        padding: 14px 2px !important; /* Tối ưu độ cao để dễ chạm */
+        font-size: 16px !important;
+        width: 100% !important;
+      }
+      .status {
+        margin-top: 8px !important;
+        font-size: 12px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="judge-card">
+  <div class="header-area">
+    <h2 id="judgeTitle">TRỌNG TÀI</h2>
+    <button class="btn-logout" id="btnLogout">Đăng xuất</button>
+  </div>
+  
+  <div class="match-id">Trận đấu: <span id="matchId" style="color:#fff;font-weight:bold;">...</span></div>
+
+  <div class="teams">
+    <div class="team-box red">
+      <div class="team-title">ĐỎ</div>
+      <div class="buttons">
+        <button class="btn btn-red" data-side="red" data-delta="1">+1</button>
+        <button class="btn btn-red" data-side="red" data-delta="2">+2</button>
+        <button class="btn btn-red" data-side="red" data-delta="3">+3</button>
+        <button class="btn btn-negative" data-side="red" data-delta="-1">-1</button>
+      </div>
+    </div>
+
+    <div class="team-box blue">
+      <div class="team-title">XANH</div>
+      <div class="buttons">
+        <button class="btn btn-blue" data-side="blue" data-delta="1">+1</button>
+        <button class="btn btn-blue" data-side="blue" data-delta="2">+2</button>
+        <button class="btn btn-blue" data-side="blue" data-delta="3">+3</button>
+        <button class="btn btn-negative" data-side="blue" data-delta="-1">-1</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="statusLine" class="status">Đang kết nối Firebase...</div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+  const userRole = localStorage.getItem("userRole");
+  const username = localStorage.getItem("username");
+  
+  if (!userRole || (userRole !== "admin" && !userRole.startsWith("judge"))) {
+    window.location.href = "index.html";
+  }
+
+  const judgeTitleEl = document.getElementById("judgeTitle");
+  if (userRole === "admin") {
+    judgeTitleEl.textContent = "ADMIN (XEM ĐIỂM)";
+  } else {
+    const judgeNumber = userRole.replace("judge", "");
+    judgeTitleEl.textContent = `TRỌNG TÀI ${judgeNumber}`;
+  }
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCYPPPbevzpRvNe8_0fD1rk0nfdwCye37Q",
+    authDomain: "chamdiemv12-97475.firebaseapp.com",
+    databaseURL: "https://chamdiemv12-97475-default-rtdb.firebaseio.com",
+    projectId: "chamdiemv12-97475",
+    storageBucket: "chamdiemv12-97475.appspot.com",
+    messagingSenderId: "1011859780993",
+    appId: "1:1011859780993:web:194f16b4e04f86df4e6480",
+    measurementId: "G-861WZ30JQB"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const matchIdEl = document.getElementById("matchId");
+  const statusLineEl = document.getElementById("statusLine");
+
+  let currentMatchId = null;
+  let currentState = "idle";
+
+  onValue(ref(db, "/currentMatchId"), snap=>{
+    if(snap.exists() && snap.val()){
+      currentMatchId = snap.val();
+      matchIdEl.textContent = currentMatchId;
+
+      onValue(ref(db, "/state/" + currentMatchId), ss=>{
+        if(ss.exists()){
+          const s = ss.val();
+          currentState = s.status;
+          statusLineEl.textContent = "Trạng thái trận: " + currentState.toUpperCase();
+        }
+      });
+    } else {
+      matchIdEl.textContent = "Chưa mở trận";
+      statusLineEl.textContent = "Chờ Admin thiết lập trận đấu...";
+    }
+  });
+
+  async function sendVote(side, delta){
+    if(!currentMatchId){
+      Swal.fire({
+        icon: 'warning',
+        title: 'Thông báo',
+        text: '⚠️ Chưa có trận nào được mở!',
+        confirmButtonText: 'Đồng ý'
+      });
+      return; 
+    }
+
+    if(currentState !== "running"){
+      Swal.fire({
+        icon: 'error', 
+        title: 'Thông báo',
+        text: '⚠️ Trận đấu chưa chạy hoặc đã kết thúc.',
+        confirmButtonText: 'Đóng'
+      });
+      return; 
+    }
+    
+    const vRef = push(ref(db, "/votes/" + currentMatchId));
+    await set(vRef,{ judgeId: userRole, side, delta: Number(delta), ts: Date.now() });
+    
+    statusLineEl.textContent = `✅ Đã chấm: ${delta > 0 ? '+' : ''}${delta} cho bên ${side.toUpperCase()}`;
+    disableButtons();
+  }
+
+  document.querySelectorAll("[data-delta]").forEach(btn=>{
+    btn.addEventListener("click", ()=> sendVote(btn.dataset.side, btn.dataset.delta));
+  });
+
+  function disableButtons(){
+    document.querySelectorAll("[data-delta]").forEach(b=> b.disabled = true);
+    setTimeout(()=> document.querySelectorAll("[data-delta]").forEach(b=> b.disabled = false), 800);
+  }
+
+  onValue(ref(db,".info/connected"), snap=>{
+    if(!snap.val()) {
+      statusLineEl.textContent = "❌ Mất kết nối mạng!";
+      statusLineEl.style.color = "#f85149";
+    } else {
+      statusLineEl.style.color = "#8b949e";
+    }
+  });
+
+  document.getElementById("btnLogout").addEventListener("click", () => {
+    localStorage.clear();
+    window.location.href = "index.html";
+  });
+</script>
+</body>
+</html>
